@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self'; script-src 'self'" />
+  <title>Calendar</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="type-sidebar" title="Click a type to show or hide it">
+    <h2>Types</h2>
+    <ul id="typeToggleList" class="type-toggle-list"></ul>
+    <button id="sidebarManageBtn" class="ghost-btn wide" title="Add or remove event types">Manage&hellip;</button>
+  </nav>
+
+  <main class="calendar-pane">
+    <header class="toolbar">
+      <div class="nav">
+        <button id="prevBtn" class="icon-btn" title="Previous month (PgUp)">&#8249;</button>
+        <button id="todayBtn" class="ghost-btn" title="Jump to today (T)">Today</button>
+        <button id="nextBtn" class="icon-btn" title="Next month (PgDn)">&#8250;</button>
+      </div>
+      <h1 id="monthLabel" title="Month view">—</h1>
+      <button id="newBtn" class="primary-btn" title="New event (N)">+ New event</button>
+    </header>
+
+    <div class="weekdays">
+      <span>Mon</span><span>Tue</span><span>Wed</span>
+      <span>Thu</span><span>Fri</span><span class="weekend">Sat</span><span class="weekend">Sun</span>
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <footer class="hints">
+      <span>&larr;&uarr;&darr;&rarr; move</span>
+      <span>Enter open day</span>
+      <span>N new event</span>
+      <span>T today</span>
+      <span>PgUp/PgDn month</span>
+    </footer>
+  </main>
+
+  <aside class="day-pane">
+    <h2 id="dayTitle">Select a day</h2>
+    <ul id="dayEvents" class="event-list"></ul>
+    <p id="dayEmpty" class="empty hidden">No events.</p>
+    <button id="addForDayBtn" class="ghost-btn wide" title="Add event on this day (Enter)">+ Add event</button>
+    <footer id="dataNote" class="data-note" title="">Data: events.json</footer>
+  </aside>
+
+  <dialog id="editor">
+    <form method="dialog" id="editorForm">
+      <h3 id="editorHeading">New event</h3>
+
+      <label>Title
+        <input type="text" id="fTitle" maxlength="120" placeholder="e.g. Team standup" required autofocus />
+      </label>
+
+      <div class="label-row">
+        <label>Type
+          <select id="fType"></select>
+        </label>
+        <button type="button" id="manageTypesBtn" class="ghost-btn manage-btn" title="Add or remove event types">Manage&hellip;</button>
+      </div>
+
+      <label>Starts on
+        <input type="date" id="fDate" required />
+      </label>
+
+      <div class="time-row">
+        <label>Starts at
+          <input type="time" id="fStartTime" />
+        </label>
+        <label>Ends at
+          <input type="time" id="fEndTime" />
+        </label>
+      </div>
+
+      <label>Repeats
+        <select id="fRecurrence">
+          <option value="none">Does not repeat</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </label>
+
+      <div id="weekdayRow" class="weekday-row hidden">
+        <button type="button" class="weekday-btn" data-day="1">Mon</button>
+        <button type="button" class="weekday-btn" data-day="2">Tue</button>
+        <button type="button" class="weekday-btn" data-day="3">Wed</button>
+        <button type="button" class="weekday-btn" data-day="4">Thu</button>
+        <button type="button" class="weekday-btn" data-day="5">Fri</button>
+        <button type="button" class="weekday-btn" data-day="6">Sat</button>
+        <button type="button" class="weekday-btn" data-day="0">Sun</button>
+      </div>
+
+      <div id="endRow">
+        <label>Ends
+          <select id="fEndMode">
+            <option value="never">Never &mdash; keeps repeating</option>
+            <option value="until">On a specific date</option>
+          </select>
+        </label>
+
+        <label id="endDateLabel">Last occurrence
+          <input type="date" id="fEndDate" />
+        </label>
+      </div>
+
+      <div class="recurrence-hint" id="recurrenceHint"></div>
+
+      <menu class="editor-actions">
+        <button type="button" id="deleteBtn" class="danger-btn hidden">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" id="cancelBtn" class="ghost-btn">Cancel</button>
+        <button type="submit" id="saveBtn" class="primary-btn">Save</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="typeManager">
+    <h3>Event types</h3>
+    <ul id="typeList" class="type-list"></ul>
+    <div class="type-add">
+      <input type="color" id="newTypeColor" value="#89dceb" title="Color for the new type" />
+      <input type="text" id="newTypeName" maxlength="24" placeholder="New type name" />
+      <button type="button" id="addTypeBtn" class="primary-btn">Add</button>
+    </div>
+    <p class="type-note">Events in a deleted type move to <strong>Other</strong>.</p>
+    <menu class="editor-actions">
+      <span class="spacer"></span>
+      <button type="button" id="closeTypesBtn" class="primary-btn">Done</button>
+    </menu>
+  </dialog>
+
+  <script src="recurrence.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "calendar-app",
+  "version": "1.0.0",
+  "description": "Small calendar app with recurring events",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  }
+}

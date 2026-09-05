@@ -1,0 +1,27 @@
+[
+  {
+    "id": "work",
+    "label": "Work",
+    "color": "#a6e3a1"
+  },
+  {
+    "id": "other",
+    "label": "Other",
+    "color": "#a6adc8"
+  },
+  {
+    "id": "02d72075-5d13-4681-b1d4-231851bf6b9a",
+    "label": "School & Camp",
+    "color": "#89dceb"
+  },
+  {
+    "id": "c1e649fd-f9ec-4fce-98e2-53f484be47dc",
+    "label": "LA",
+    "color": "#2a19ae"
+  },
+  {
+    "id": "41470b67-1723-4734-b6ba-2ebef9b147f9",
+    "label": "Math and CS",
+    "color": "#127334"
+  }
+]
