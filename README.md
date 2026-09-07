@@ -1,11 +1,8 @@
 # 📅 Calendar App — Electron
 
-> Gorgeous, keyboard-driven desktop calendar with smart recurrences, color types & instant search.
-
 ![Electron](https://img.shields.io/badge/Electron-33.4-black?logo=electron)
 ![Tests](https://img.shields.io/badge/tests-35%20passing-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
 **One command to run:** `npm start` — clean Month view, zero config, data survives reinstalls.
 
@@ -66,4 +63,4 @@ npm start
 
 ---
 
-Built with Electron • Catppuccin-inspired dark theme • MIT
+Built with Electron • Catppuccin-inspired dark theme
