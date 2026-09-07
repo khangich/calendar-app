@@ -34,6 +34,8 @@ const closeTypesBtn = document.getElementById("closeTypesBtn");
 const manageTypesBtn = document.getElementById("manageTypesBtn");
 const typeToggleList = document.getElementById("typeToggleList");
 const sidebarManageBtn = document.getElementById("sidebarManageBtn");
+const searchInput = document.getElementById("searchInput");
+const searchClear = document.getElementById("searchClear");
 
 const { occursOn, eventsOn, parseDate, toISO, formatTime, timeRange, EVENT_TYPES, groupEventsByType } = window.Recurrence;
 
@@ -55,6 +57,7 @@ let hiddenTypes = new Set(JSON.parse(localStorage.getItem("hiddenTypes") || "[]"
 let viewYear, viewMonth;          // displayed month
 let selectedISO = toISO(new Date());
 let editingId = null;             // event id open in the dialog
+let searchQuery = "";
 
 /* ---------- type registry ---------- */
 
@@ -73,9 +76,18 @@ function saveHiddenTypes() {
   localStorage.setItem("hiddenTypes", JSON.stringify([...hiddenTypes]));
 }
 
-// Events whose type isn't hidden in the left sidebar.
+function matchesSearch(ev) {
+  if (!searchQuery) return true;
+  return ev.title.toLowerCase().includes(searchQuery.toLowerCase());
+}
+
+// Events whose type isn't hidden in the left sidebar and match search.
 function visibleEvents() {
-  return events.filter((e) => !hiddenTypes.has(resolvedTypeId(e)));
+  return events.filter((e) => !hiddenTypes.has(resolvedTypeId(e)) && matchesSearch(e));
+}
+
+function updateSearchUI() {
+  searchClear.classList.toggle("hidden", !searchQuery);
 }
 
 async function persistTypes() {
@@ -513,18 +525,58 @@ function renderTypeManager() {
     const li = document.createElement("li");
     li.className = "type-row";
 
-    const swatch = document.createElement("span");
-    swatch.className = "swatch";
-    swatch.style.background = t.color;
+    const colorInput = document.createElement("input");
+    colorInput.type = "color";
+    colorInput.value = t.color;
+    colorInput.title = "Change color";
+    colorInput.className = "type-color-input";
+    colorInput.addEventListener("input", async () => {
+      t.color = colorInput.value;
+      await persistTypes();
+      renderTypeSidebar();
+      populateTypeSelect();
+      render();
+    });
+    li.appendChild(colorInput);
 
-    const label = document.createElement("span");
-    label.className = "type-label";
-    label.textContent = t.label;
-
-    li.append(swatch, label);
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = t.label;
+    nameInput.maxLength = 24;
+    nameInput.className = "type-name-input";
+    if (t.id === "other") nameInput.title = "Fallback type — rename allowed, cannot delete";
+    const saveName = async () => {
+      const newLabel = nameInput.value.trim();
+      if (!newLabel) {
+        nameInput.value = t.label;
+        return;
+      }
+      if (newLabel !== t.label && types.some((x) => x.id !== t.id && x.label.toLowerCase() === newLabel.toLowerCase())) {
+        alert(`A type named "${newLabel}" already exists.`);
+        nameInput.value = t.label;
+        nameInput.focus();
+        return;
+      }
+      if (newLabel !== t.label) {
+        t.label = newLabel;
+        await persistTypes();
+        populateTypeSelect();
+        renderTypeSidebar();
+        render();
+        renderTypeManager();
+      }
+    };
+    nameInput.addEventListener("change", saveName);
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        nameInput.blur();
+      }
+    });
+    li.appendChild(nameInput);
 
     if (t.id === "other") {
-      li.title = "Fallback type — always available"; // can't be deleted
+      li.title = "Fallback type — always available";
     } else {
       const del = document.createElement("button");
       del.type = "button";
@@ -543,6 +595,7 @@ function renderTypeManager() {
         renderTypeManager();
         populateTypeSelect();
         renderTypeSidebar();
+        render();
       });
       li.appendChild(del);
     }
@@ -586,6 +639,20 @@ manageTypesBtn.addEventListener("click", openTypeManager);
 sidebarManageBtn.addEventListener("click", openTypeManager);
 closeTypesBtn.addEventListener("click", () => typeManager.close());
 
+searchInput.addEventListener("input", () => {
+  searchQuery = searchInput.value.trim();
+  updateSearchUI();
+  render();
+});
+
+searchClear.addEventListener("click", () => {
+  searchQuery = "";
+  searchInput.value = "";
+  updateSearchUI();
+  render();
+  searchInput.focus();
+});
+
 /* ---------- toolbar & keyboard ---------- */
 
 function shiftMonth(delta) {
@@ -618,7 +685,27 @@ document.getElementById("newBtn").addEventListener("click", () => openEditor(nul
 addForDayBtn.addEventListener("click", () => openEditor(null, selectedISO));
 
 document.addEventListener("keydown", (e) => {
-  if (editor.open) return;
+  if (editor.open || typeManager.open) {
+    if (e.key === "Escape" && typeManager.open) typeManager.close();
+    return;
+  }
+
+  if (e.key === "/" && document.activeElement !== searchInput) {
+    e.preventDefault();
+    searchInput.focus();
+    return;
+  }
+
+  if (document.activeElement === searchInput) {
+    if (e.key === "Escape") {
+      searchQuery = "";
+      searchInput.value = "";
+      updateSearchUI();
+      render();
+      searchInput.blur();
+    }
+    return;
+  }
 
   switch (e.key) {
     case "ArrowLeft":
