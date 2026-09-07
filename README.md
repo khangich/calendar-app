@@ -9,7 +9,7 @@
 
 **One command to run:** `npm start` — clean Month view, zero config, data survives reinstalls.
 
----
+![Demo](docs/demo.gif)
 
 ### ✨ Why this calendar?
 
